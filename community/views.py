@@ -12,7 +12,7 @@ class CommunityView(APIView):
     def get(self,request):
         com=Community.objects.all()
         ser=CommunitySerializer(com,many=True)
-        return Response(data=ser.data)
+        return Response({'status':1,'data':ser.data})
     def post(self,request):
         user=request.user
         ser=CommunitySerializer(data=request.data)
@@ -22,16 +22,16 @@ class CommunityView(APIView):
             'message': 'Community Created successfully',
             'user': ser.data
             }
-            return Response(response_data,status=status.HTTP_201_CREATED)
+            return Response({'status':1,'data':response_data},status=status.HTTP_201_CREATED)
         else:
-            return Response({"Msg":ser.errors},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status':1,"Msg":ser.errors},status=status.HTTP_400_BAD_REQUEST)
 
 class MyCommunity(APIView):
     def get(self,request):
         user=request.user
         com=Community.objects.filter(user=user)        
         ser=CommunitySerializer(com)
-        return Response(data=ser.data)
+        return Response({'status':1,'data':ser.data})
     def put(self,request):
         user= request.user
         try:
@@ -39,11 +39,11 @@ class MyCommunity(APIView):
             ser=CommunitySerializer(data=request.data,instance=com) 
             if ser.is_valid():
                 ser.save()
-                return Response({"msg":"Community Updated"})
+                return Response({'status':1,"msg":"Community Updated"})
             else:
-                return Response({"msg":ser.errors},status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                return Response({'status':0,"msg":ser.errors},status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         except:
-            return Response({"msg":"Invalid ID"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status':0,"msg":"Invalid ID"},status=status.HTTP_400_BAD_REQUEST)
 
 
 class FollowCommunity(APIView):
@@ -58,7 +58,7 @@ class FollowCommunity(APIView):
             community_to_follow = Community.objects.get(id=id)
             print(community_to_follow)
         except Community.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'status':0},status=status.HTTP_404_NOT_FOUND)
 
         user.community.add(community_to_follow)
         community_to_follow.followers.add(community_to_follow)
@@ -67,7 +67,7 @@ class FollowCommunity(APIView):
 
         views.create_notification(user, community_to_follow, 'follow')
 
-        return Response(status=status.HTTP_200_OK)
+        return Response({'status':1},status=status.HTTP_200_OK)
 
 
 # class UnFollowUser(APIView):

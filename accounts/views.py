@@ -24,7 +24,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
         # Include serialized user data in the response
         response.data.update(serializer.validated_data)
 
-        return response
+        return response({'status':1})
 
 class RegistrationView(generics.CreateAPIView):
     serializer_class = RegistrationSerializer
@@ -34,6 +34,7 @@ class RegistrationView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         response_data = {
+            'status':1,
             'message': 'User registered successfully',
             'user': serializer.data
         }
@@ -49,7 +50,7 @@ class ExploreUsers(APIView):
         serializer = ListUserSerializer(
             last_five, many=True, context={"request": request})
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response({'status':1,'data':serializer.data}, status=status.HTTP_200_OK)
 
 
 class FollowUser(APIView):
@@ -70,7 +71,7 @@ class FollowUser(APIView):
 
         views.create_notification(user, user_to_follow, 'follow')
 
-        return Response(status=status.HTTP_200_OK)
+        return Response({'status':1},status=status.HTTP_200_OK)
 
 
 class UnFollowUser(APIView):
@@ -88,7 +89,7 @@ class UnFollowUser(APIView):
 
         user.save()
 
-        return Response(status=status.HTTP_200_OK)
+        return Response({'status':1},status=status.HTTP_200_OK)
 
 
 class UserProfile(APIView):
@@ -112,7 +113,7 @@ class UserProfile(APIView):
         serializer = UserProfileSerializer(
             found_user, context={'request': request})
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response({'status':1,'data':serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, username, format=None):
 
@@ -122,11 +123,11 @@ class UserProfile(APIView):
 
         if found_user is None:
 
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'status':0},status=status.HTTP_404_NOT_FOUND)
 
         elif found_user.username != user.username:
 
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status':0},status=status.HTTP_400_BAD_REQUEST)
 
         else:
 
@@ -137,11 +138,11 @@ class UserProfile(APIView):
 
                 serializer.save()
 
-                return Response(data=serializer.data, status=status.HTTP_200_OK)
+                return Response({'status':1,'data':serializer.data}, status=status.HTTP_200_OK)
 
             else:
 
-                return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'status':0,'data':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserFollowers(APIView):
@@ -151,14 +152,14 @@ class UserFollowers(APIView):
         try:
             found_user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'status':0},status=status.HTTP_404_NOT_FOUND)
 
         user_followers = found_user.followers.all()
 
         serializer = ListUserSerializer(
             user_followers, many=True, context={"request": request})
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response({'status':1,'data':serializer.data}, status=status.HTTP_200_OK)
 
 
 class UserFollowing(APIView):
@@ -168,14 +169,14 @@ class UserFollowing(APIView):
         try:
             found_user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({'status':0},status=status.HTTP_404_NOT_FOUND)
 
         user_following = found_user.following.all()
 
         serializer = ListUserSerializer(
             user_following, many=True, context={"request": request})
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response({'status':1,'data':serializer.data}, status=status.HTTP_200_OK)
 
 
 class Search(APIView):
@@ -191,8 +192,8 @@ class Search(APIView):
             serializer = ListUserSerializer(
                 users, many=True, context={"request": request})
 
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
+            return Response({'status':1},data=serializer.data, status=status.HTTP_200_OK)
 
         else:
 
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status':0},status=status.HTTP_400_BAD_REQUEST)
