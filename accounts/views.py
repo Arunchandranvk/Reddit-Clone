@@ -23,8 +23,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
         # Include serialized user data in the response
         response.data.update(serializer.validated_data)
-
-        return response({'status':1})
+        response.data['status']=1
+        return response
 
 class RegistrationView(generics.CreateAPIView):
     serializer_class = RegistrationSerializer
